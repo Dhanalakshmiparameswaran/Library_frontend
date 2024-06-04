@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import '../UserDashboard.css';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface Book {
   ID: number;
   bookname: string;
 }
 
-interface BorrowedBook extends Book {
+interface BorrowedBook {
+  UBID: number;
+  bookname: {
+    ID: number;
+    bookname: string;
+  };
+  username: {
+    ID: number;
+    username: string;
+  };
   startdate: string;
   enddate: string;
-  ID: number;
-  bookname: string;
-  username:string;
 }
-
-
 
 const UserDashboard: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -28,6 +32,7 @@ const UserDashboard: React.FC = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [username, setUsername] = useState('');
+  const Navigate =useNavigate();
 
   //show book detalis
   const fetchBooks = async () => {
@@ -47,13 +52,11 @@ const UserDashboard: React.FC = () => {
       console.error('Error fetching book details:', error);
     }
   };
-
  //show the borrowed book
   const fetchBorrowedBooks = async () => {
     try {
       const token = localStorage.getItem('jwtToken');
       if (!token) throw new Error('No token found');
-
       const response = await axios.get('http://localhost:9082/user/borrowed', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -66,6 +69,7 @@ const UserDashboard: React.FC = () => {
       console.error('Error fetching borrowed books:', error);
     }
   };
+
 
   // show the borrow book details
   const handleBorrow = async () => {
@@ -93,15 +97,18 @@ const UserDashboard: React.FC = () => {
       console.error('Error borrowing book:', error);
     }
   };
-
+ const handlelogout = ()=>{
+    localStorage.removeItem('jwtToken');
+    Navigate('/')
+  }
   return (
     <>
      {/* navbar */}
       <div className="user_dashboard">
         <div className="navbar">
-          <span className='bl' onClick={fetchBorrowedBooks}>Borrowed Books</span>
+          <span className='bl' onClick={()=>fetchBorrowedBooks()}>Borrowed Books</span>
           <span className='bl' onClick={fetchBooks}>Available Books</span>
-          <span className='bl'><Link to={'/'}>Logout</Link></span>
+          <span className='bl' onClick={handlelogout}>Logout</span>
         </div>
       </div>
       <h1 className='heads'>Welcome...!</h1>
@@ -146,15 +153,17 @@ const UserDashboard: React.FC = () => {
             <tr>
               <th className='Thead'>Book ID</th>
               <th className='Thead'>Book Name</th>
+              <th className='Thead'>Username</th>
               <th className='Thead'>Start Date</th>
               <th className='Thead'>End Date</th>
             </tr>
           </thead>
           <tbody>
-            {borrowedBooks.map((borrowedBook) => (
-              <tr key={borrowedBook.ID}>
-                <td className='Tabledats'>{borrowedBook.ID}</td>
-                <td className='Tabledats'>{borrowedBook.bookname}</td>
+            {borrowedBooks.map((borrowedBook,index) => (
+              <tr key={borrowedBook.UBID || index}>
+                <td className='Tabledats'>{borrowedBook.UBID}</td>
+                <td className='Tabledats'>{borrowedBook.bookname.bookname}</td>
+                <td className='Tabledats'>{borrowedBook.username.username}</td>
                 <td className='Tabledats'>{borrowedBook.startdate}</td>
                 <td className='Tabledats'>{borrowedBook.enddate}</td>
               </tr>
@@ -195,3 +204,4 @@ const UserDashboard: React.FC = () => {
 };
 
 export default UserDashboard;
+

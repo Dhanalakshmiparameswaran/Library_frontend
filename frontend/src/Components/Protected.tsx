@@ -1,11 +1,7 @@
-import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-interface ProtectedProps {
-  children: JSX.Element;
-}
 
-const Protected: React.FC<ProtectedProps> = ({ children }) => {
+const Protected= ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('jwtToken');
   
   if (!token) {
@@ -14,5 +10,7 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
   
   return children;
 };
-
+ 
 export default Protected;
+
+

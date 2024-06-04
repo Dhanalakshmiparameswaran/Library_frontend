@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../UserDashboard.css';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface Book {
   ID: number;
@@ -17,8 +17,14 @@ interface User {
 
 interface UserBook {
   UBID: number;
-  username: string;
-  bookname: string;
+  bookname: {
+    ID: number;
+    bookname: string;
+  };
+  username: {
+    ID: number;
+    username: string;
+  };
   startdate: string;
   enddate: string;
 }
@@ -36,6 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [startdate, setStartDate] = useState('');
   const [enddate, setEndDate] = useState('');
   const [Selected, setSelected] = useState({ UBID: '',});
+  const Navigate =useNavigate();
 
   //show the all books table
   const fetchBooks = async () => {
@@ -185,13 +192,18 @@ const AdminDashboard: React.FC = () => {
   
 // upadate popup sent details
   const openUpdatePopup = (userBook: UserBook) => {
-    setUsername(userBook.username);
-    setBookName(userBook.bookname);
+    setUsername(userBook.username.username);
+    setBookName(userBook.bookname.bookname);
     setStartDate(userBook.startdate);
     setEndDate(userBook.enddate);
     setSelected({ UBID: userBook.UBID.toString() }); 
     setIsPopupOpen(true);
   };
+  
+  const handlelogout = ()=>{
+    localStorage.removeItem('jwtToken');
+    Navigate('/')
+  }
 
   return (
     <>
@@ -201,7 +213,7 @@ const AdminDashboard: React.FC = () => {
           <a className='bl' href="#" onClick={fetchBooks}>Books Details</a>
           <a className='bl' href="#" onClick={fetchUsers}>View Users</a>
           <a className='bl' href="#" onClick={fetchUserBooks}>User Books</a>
-          <a className='bl'><Link to={'/'}>Logout</Link></a>
+          <a className='bl' onClick={handlelogout}>Logout</a>
         </div>
       </div>
       <div className='overallpage'>
@@ -307,8 +319,8 @@ const AdminDashboard: React.FC = () => {
                 {userBooks.map((userBook,index) => (
                   <tr key={index}>
                     <td className='Tabledats'>{userBook.UBID}</td>
-                    <td className='Tabledats'>{userBook.username}</td>
-                    <td className='Tabledats'>{userBook.bookname}</td>
+                    <td className='Tabledats'>{userBook.username.username}</td>
+                    <td className='Tabledats'>{userBook.bookname.bookname}</td>
                     <td className='Tabledats'>{userBook.startdate}</td>
                     <td className='Tabledats'>{userBook.enddate}</td>
                     <td className='Tabledats'>
